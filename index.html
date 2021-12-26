@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="style.css">
+    <title>ComputorV1</title>
+
+</head>
+
+<body>
+    <div class="wrapper">
+        <div class="form-signin">
+            <h2 class="form-signin-heading">Computor V1</h2>
+            <input id="equationInput" type="text" class="form-control" name="equation" placeholder="equation here..." value="5 * X^0 + 4 * X^1 - 1 * X^2 = 0" />
+            <input type="checkbox" value="remember-me" id="rememberMe" name="rememberMe" checked> Animate steps
+            <hr>
+            <h4>examples:</h4>
+            <ul>
+
+                <li><b>-4 * X^2 + 12 * X = 9</b> // Δ == 0</li>
+                <li><b>5 * X^0 + 4 * X^1 - 1 * X^2 = 0</b> // Δ > 0</li>
+                <li><b>x^2 + 25 = 0</b> // Δ &lt; 0 </li>
+                <li><b>5 + 4 * X^1 - 1 * X^2 = 0</b> // Δ > 0</li>
+                <li><b>5 + 4 * X - X^2 = 0</b> // Δ > 0</li>
+                <li><b>5 + 4 * X = X^2</b> // Δ > 0</li>
+                </li>
+            </ul>
+            <hr>
+            <p>## second degree equation solving rules :</p>
+            <p>Δ = b² - 4ac</p>
+            <p>calculate Δ then check the following the conditions :</p>
+            <p>if Δ &lt; 0 : there is no solution</p>
+            <p>if Δ = 0 : there is one solution which is : x= -b/(2a)</p>
+            <p>if Δ > 0 : there is two solutions which are : x1 = (-b-√Δ)/(2a) et x2= (-b+√Δ)/(2a)</p>
+            <hr>
+            <ul id="steps">
+            </ul>
+            <div id="sols"></div>
+            <button class="btn btn-lg btn-primary btn-block" type="submit" id="solve">Solve</button>
+        </div>
+    </div>
+    <script src="jquery.js"></script>
+    <script src="computorv1.js"></script>
+</body>
+
+</html>
