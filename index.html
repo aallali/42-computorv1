@@ -45,6 +45,39 @@
     </div>
     <script src="jquery.js"></script>
     <script src="computorv1.js"></script>
+    <script>
+        window.onload = function() {
+            document.getElementById("solve").addEventListener("click", function() {
+                let val = document.getElementById("equationInput").value
+                let res = null
+                if (val) {
+                    res = computorv1(val, true)
+                    if (res && res.steps) {
+                        if ($("#rememberMe:checked").length)
+                            $('#steps').html(res.steps.map(l => `<li><p>${l}</p></li>`))
+                        else {
+                            $('#steps').html('')
+                        }
+                    }
+
+                    if (res && res.solution || res && res.solution === 0) {
+                        if (Array.isArray(res.solution))
+                            $('#sols').html(`
+                    <h4>Solutions are :</h4>
+                    <h4>     X1 : ${res.solution[0]}</h4>
+                    <h4>     X2 : ${res.solution[1]}</h4>
+                    `)
+                        else
+                            $('#sols').html(`
+                    <h4>Solution is : X = ${res.solution}</h4>
+                    `)
+                    } else {
+                        $('#sols').html(``)
+                    }
+                }
+            });
+        }
+    </script>
 </body>
 
 </html>

@@ -118,23 +118,11 @@ function getMax(prev, curr) {
 }
 
 
-function computorv1(val) {
-    const args = val || process.argv[2]
+function computorv1(val, web = false) {
     let eq, solution, logs = []
-        // if (!val && process.argv.length < 3) {
-        //     console.log("Usage: ./computor \"<pol> = <pol>\"");
-        //     process.exit(0);
-        // }
-        // let formula = process.argv.slice(2).join("").toUpperCase().split(" ").join("").split("=");
-        // if (!val && formula.length !== 2) {
-        //     log("Usage: ./computor \"<pol> = <pol>\"");
-        //     process.exit(0);
-        // } else {
-    eq = val.toUpperCase().split(" ").join("").split("=");
-    if (eq.length !== 2) {
-        alert("Usage: ./computor \"<pol> = <pol>\"");
-        return
-    }
+
+    eq = validateInput(val)
+
     if (eq) {
         const parsedS1 = parseSide(eq[0])
         const parsedS2 = parseSide(eq[1])
@@ -143,11 +131,27 @@ function computorv1(val) {
         let simplifiedSR = simplify(parsedS2)
 
         simplifiedSL = mergeLandRpols(simplifiedSL, simplifiedSR)
-        logs.push(`Reduced form: ${reduceForm(simplifiedSL)} = 0`);
+        logs.push(`Equation given : ${eq[0]} = ${eq[1]}`.replace('^0', '⁰')
+            .replace('^1', '¹')
+            .replace('^2', '²')
+            .replace(/(1|) \* X/g, 'X'))
+        logs.push(`Reduced form: ${reduceForm(simplifiedSL)} = 0`
+            .replace('^0', '⁰')
+            .replace('^1', '¹')
+            .replace('^2', '²')
+
+        );
         var max = simplifiedSL.reduce(getMax, 0);
         logs.push(`Polynomial degree: ${max}`);
         if (max > 2) {
-            alert("The polynomial degree is strictly greater than 2", ", I can't solve");
+            if (web)
+                alert("The polynomial degree is strictly greater than 2", ", I can't solve");
+
+            else {
+                log(logs.join("\n"))
+                log("The polynomial degree is strictly greater than 2", ", I can't solve")
+                process.exit(0);
+            }
             return
         }
         let a = simplifiedSL.find(function(x) { return x[1] == 2; });
@@ -156,30 +160,34 @@ function computorv1(val) {
         a = a ? a[0] : 0;
         b = b ? b[0] : 0;
         c = c ? c[0] : 0;
+        logs.push(`a : ${a} | b : ${b} | c : ${c}`)
         if (max === 0) {
             if (simplifiedSL.length != 0)
-                log("There are no solutions");
+                logs.push("There are no solutions");
             else
-                log("Every real is a solution");
+                logs.push("Every real is a solution");
         }
         if (max === 1) {
-            solution = c / b
+
+            solution = -c / b
+            logs.push(`     X1 b * X + c = 0`)
+            logs.push(`     X1 X = -c/b`)
+            logs.push(`     X1 X = ${-c}/${b}`)
         }
         if (max === 2) {
             // Calculate delta
             const delta = b * b - 4 * a * c;
-            logs.push(`Δ is : b * b - 4 * a * c`)
+            logs.push(`Δ is : (b² - 4 * a * c)`)
             logs.push(`Δ is : ${delta}`)
             if (delta > 0) {
                 logs.push("Δ is strictly positive, the two solutions are:")
-                logs.push(`     s1: (-b - √Δ) / (2 * a)`)
-                logs.push(`     s2: (-b + √Δ) / (2 * a)\n`)
+                logs.push(`     X1 (-b - √Δ) / (2 * a)`)
+                logs.push(`     X1 (${-b} - √${delta}) / (2 * ${a})`)
+                logs.push(`     X1 ${-b - mysqrt(delta)} / ${2 * a}`)
 
-                logs.push(`     s1: (-${b} - √${delta}) / (2 * ${a})`)
-                logs.push(`     s2: (-${b} + √${delta}) / (2 * ${a})\n`)
-
-                logs.push(`     s1: ${-b - mysqrt(delta)} / ${2 * a}`)
-                logs.push(`     s2: ${-b + mysqrt(delta)} / ${2 * a}\n`)
+                logs.push(`     X2 (-b + √Δ) / (2 * a)\n`)
+                logs.push(`     X2 (${-b} + ${mysqrt(delta)}) / (2 * ${a})\n`)
+                logs.push(`     X2 ${-b + mysqrt(delta)} / ${2 * a}\n`)
 
                 solution = [
                     pf(((-b - mysqrt(delta)) / (2 * a)).toFixed(22)),
@@ -187,73 +195,95 @@ function computorv1(val) {
                 ]
             } else if (delta === 0) {
                 logs.push("Δ is zero, the solution is:")
-                logs.push("     s1: (-b /2 * a)")
-                solution = -b / (2 * a)
+                logs.push(`     X1 (-b /2 * a)`)
+                logs.push(`     X1 (${-b} /2 * ${a})`)
+                solution = b == 0 ? b : (-b / (2 * a))
+
             } else {
                 logs.push("Δ is strictly negative, the two solutions are:")
-                logs.push(`     s1: (-b / (2 * a)) + i * (√(-Δ) / 2 * a)`)
-                logs.push(`     s1: (-b / (2 * a)) - i * (√(-Δ) / 2 * a)\n`)
+                logs.push(`     X1 (-b / (2 * a)) + i * (√(-Δ) / 2 * a)`)
+                logs.push(`     X1 (-b / (2 * a)) - i * (√(-Δ) / 2 * a)\n`)
 
-                logs.push(`     s1: (-${b} / (2 * ${a})) + i * (√${-delta} / 2 * ${a})`)
-                logs.push(`     s1: (-${b} / (2 * ${a})) - i * (√${-delta} / 2 * ${a})\n`)
-                const tmp1 = pf((-b / (2 * a)).toFixed(6))
+                logs.push(`     X1 (${-b} / (2 * ${a})) + i * (√${-delta} / 2 * ${a})`)
+                logs.push(`     X1 (${-b} / (2 * ${a})) - i * (√${-delta} / 2 * ${a})\n`)
+                const tmp1 = b === 0 ? 0 : (pf((-b / (2 * a)).toFixed(6)))
                 solution = [
                     (tmp1 === 0 ? "" : tmp1) + " +i * " + pf((mysqrt(-delta) / (2 * a)).toFixed(22)),
                     (tmp1 === 0 ? "" : tmp1) + " -i * " + pf((mysqrt(-delta) / (2 * a)).toFixed(22))
                 ]
             }
         }
-        log(`
+        if (!web) {
+            log(`
 ###################################################################################
-## second degree equation solving rules :
+--- second degree equation solving rules :
 Δ = b² - 4ac
 calculate Δ then check the following the conditions :
 if Δ < 0 : there is no solution
 if Δ = 0 : there is one solution which is : x= -b/(2a)
 if Δ > 0 : there is two solutions which are : x1 = (-b-√Δ)/(2a) et x2= (-b+√Δ)/(2a)
 ###################################################################################
-            `)
-        log(logs.join("\n"))
-        if (Array.isArray(solution)) {
-            log(`     s1: ${solution[0]}`)
-            log(`     s2: ${solution[1]}`)
-        } else
-            log(`     s1: ${solution}`)
+                    `)
+            log(logs.join("\n"))
+            if (solution) {
+
+                if (Array.isArray(solution)) {
+                    log(`     X1: ${solution[0]}`)
+                    log(`     X2: ${solution[1]}`)
+                } else
+                    log(`     X: ${solution}`)
+            }
+        }
         return { steps: logs, solution }
     } else {
         alert("Provide an equation!")
+
+
         return
     }
 }
 
+/**
+ * 
+ * @param {string|undefined} input 
+ * @returns {boolean}
+ */
+function validateInput(input) {
+    // debugger;
+    if (input) {
 
-window.onload = function() {
-    document.getElementById("solve").addEventListener("click", function() {
-        let val = document.getElementById("equationInput").value
-        let res = null
-        if (val) {
-            res = computorv1(val)
-            if (res.steps && res.solution) {
-                if ($("#rememberMe:checked").length)
-                    $('#steps').html(res.steps.map(l => `<li>${l}</li>`))
-                else {
-                    $('#steps').html('')
-                }
-            }
 
-            if (res.solution) {
-                if (Array.isArray(res.solution))
-                    $('#sols').html(`
-                    <h4>Solutions are :</h4>
-                    <h4>     s1: ${res.solution[0]}</h4>
-                    <h4>     s2: ${res.solution[1]}</h4>
-                    `)
-                else
-                    $('#sols').html(`
-                    <h4>Solution is : ${res.solution}</h4>
-               
-                    `)
-            }
+        let formula = input.toUpperCase().split(" ").join("").split("=");
+        if (formula.length !== 2) {
+            log("Usage: ./computor \"<pol> = <pol>\"");
+            process.exit(0);
+        } else {
+            return formula
         }
-    });
+
+    } else {
+        if (process.argv.length < 3) {
+            console.log("Usage: ./computor \"<pol> = <pol>\"");
+            process.exit(0);
+        }
+        let formula = process.argv.slice(2).join("").toUpperCase().split(" ").join("").split("=");
+        if (formula.length !== 2) {
+            log("Usage: ./computor \"<pol> = <pol>\"");
+            process.exit(0);
+        } else {
+            return formula
+        }
+    }
+    log("Usage: ./computor \"<pol> = <pol>\"");
+    process.exit(0);
 }
+
+function equationFormCheck(eq) {
+    if (typeof eq == "string") {
+        eq = eq.replace(/\s+/g, '')
+        if (/(\+[^0-9X])|(\-[^0-9X])|(\*[^0-9X])|(\^[^0-9])|(\=[^0-9X\-])|(\.[^0-9])|(X[^\+\-\^\=])|([^\dX]$)/.test(eq)) { return false } else
+            return true
+    }
+    return false
+}
+computorv1()
